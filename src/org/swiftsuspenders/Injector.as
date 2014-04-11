@@ -444,6 +444,7 @@ package org.swiftsuspenders
 			{
 				return;
 			}
+			delete _managedObjects[instance];
 			const type : Class = _reflector.getClass(instance);
 			const typeDescription : TypeDescription = getTypeDescription(type);
 			for (var preDestroyHook : PreDestroyInjectionPoint = typeDescription.preDestroyMethods;
