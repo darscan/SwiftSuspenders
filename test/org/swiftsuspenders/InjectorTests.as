@@ -69,6 +69,7 @@ package org.swiftsuspenders
 	import org.swiftsuspenders.support.types.ComplexClazz;
 	import org.swiftsuspenders.support.types.Interface;
 	import org.swiftsuspenders.support.types.Interface2;
+	import org.swiftsuspenders.support.types.ObjectToDestroy;
 	import org.swiftsuspenders.typedescriptions.TypeDescription;
 	import org.swiftsuspenders.utils.SsInternal;
 
@@ -918,6 +919,27 @@ package org.swiftsuspenders
 			injector.teardown();
 			assertThat(singleton1, hasPropertyWithValue("preDestroyCalled", true));
 			assertThat(singleton2, hasPropertyWithValue("preDestroyCalled", true));
+		}
+
+		[Test]
+		public function teardown_dont_destroy_what_is_already_destroyed() : void
+		{
+			injector.map(ObjectToDestroy).asSingleton();
+			const singleton : ObjectToDestroy = injector.getInstance(ObjectToDestroy);
+			injector.destroyInstance(singleton);
+			injector.teardown();
+			assertThat(singleton, hasPropertyWithValue("destroyCounter", 1));
+		}
+
+		[Test]
+		public function injectInto_removes_object_from_deleted_objects() : void
+		{
+			injector.map(ObjectToDestroy).asSingleton();
+			const singleton : ObjectToDestroy = injector.getInstance(ObjectToDestroy);
+			injector.destroyInstance(singleton);
+			injector.injectInto(singleton)
+			injector.teardown();
+			assertThat(singleton, hasPropertyWithValue("destroyCounter", 2));
 		}
 
 		[Test]
