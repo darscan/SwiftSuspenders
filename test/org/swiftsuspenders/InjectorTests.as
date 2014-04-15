@@ -899,10 +899,20 @@ package org.swiftsuspenders
 		}
 
 		[Test]
-		public function destroyInstance_invokes_PreDestroy_methods_on_instance() : void
+		public function destroyInstance_does_NOT_invoke_PreDestroy_methods_on_unmanaged_instance() : void
 		{
 			const target : Clazz = new Clazz();
 			assertThat(target, hasPropertyWithValue("preDestroyCalled", false));
+			injector.destroyInstance(target);
+			assertThat(target, hasPropertyWithValue("preDestroyCalled", false));
+		}
+
+		[Test]
+		public function destroyInstance_invokes_PreDestroy_methods_on_managed_instance() : void
+		{
+			const target : Clazz = new Clazz();
+			assertThat(target, hasPropertyWithValue("preDestroyCalled", false));
+			injector.injectInto(target);
 			injector.destroyInstance(target);
 			assertThat(target, hasPropertyWithValue("preDestroyCalled", true));
 		}

@@ -182,7 +182,6 @@ package org.swiftsuspenders
 		private var _reflector : Reflector;
 		private var _fallbackProvider : FallbackDependencyProvider;
 		private var _blockParentFallbackProvider : Boolean = false;
-		private const _destroyedObject:Dictionary = new Dictionary(true);
 
 		private static const _baseTypes:Array = initBaseTypeMappingIds(
 				[Object, Array, Class, Function, Boolean, Number, int, uint, String]);
@@ -441,11 +440,11 @@ package org.swiftsuspenders
 		 */
 		public function destroyInstance(instance : Object) : void
 		{
-			if (!instance || _destroyedObject[instance])
+			if (!(instance && _managedObjects[instance]))
 			{
 				return;
 			}
-			_destroyedObject[instance] = true;
+			delete _managedObjects[instance];
 			const type : Class = _reflector.getClass(instance);
 			const typeDescription : TypeDescription = getTypeDescription(type);
 			for (var preDestroyHook : PreDestroyInjectionPoint = typeDescription.preDestroyMethods;
@@ -694,7 +693,6 @@ package org.swiftsuspenders
 				injectionPoint.applyInjection(target, targetType, this);
 				injectionPoint = injectionPoint.next;
 			}
-			delete _destroyedObject[target];
 			if (description.preDestroyMethods)
 			{
 				_managedObjects[target] = target;
