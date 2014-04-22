@@ -967,6 +967,20 @@ package org.swiftsuspenders
 		}
 
 		[Test]
+		public function managed_instance_test() : void
+		{
+			const target1 : Clazz = new Clazz();
+			injector.injectInto(target1);
+			const target2 : Clazz = new Clazz();
+			injector.injectInto(target2);
+			Assert.assertTrue(injector.hasManagedInstance(target1));
+			Assert.assertTrue(injector.hasManagedInstance(target2));
+			injector.teardown();
+			Assert.assertFalse(injector.hasManagedInstance(target1));
+			Assert.assertFalse(injector.hasManagedInstance(target2));
+		}
+
+		[Test]
 		public function fallbackProvider_is_null_by_default() : void
 		{
 			assertThat(injector.fallbackProvider, equalTo(null));

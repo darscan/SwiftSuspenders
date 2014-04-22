@@ -338,6 +338,15 @@ package org.swiftsuspenders
 		}
 
 		/**
+		 * checks if we
+		 * @param instance
+		 * @return
+		 */
+		public function hasManagedInstance(instance : Object) : Boolean {
+			return _managedObjects[instance];
+		}
+
+		/**
 		 * Inspects the given object and injects into all injection points configured for its class.
 		 *
 		 * @param target The instance to inject into
@@ -472,9 +481,13 @@ package org.swiftsuspenders
 			{
 				mapping.getProvider().destroy();
 			}
+			var objectsToRemove:Vector.<Object> = new Vector.<Object>();
 			for each (var instance : Object in _managedObjects)
 			{
-				destroyInstance(instance);
+				objectsToRemove.push(instance);
+			}
+			while(objectsToRemove.length){
+				destroyInstance(objectsToRemove.pop());
 			}
 			_mappings = new Dictionary();
 			_mappingsInProcess = new Dictionary();
