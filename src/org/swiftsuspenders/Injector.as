@@ -338,11 +338,15 @@ package org.swiftsuspenders
 		}
 
 		/**
-		 * checks if we
-		 * @param instance
-		 * @return
+		 * Checks if an instance is managed by this Injector.
+		 *
+		 * <p>An instance is "managed" if it was created or injected into by this Injector.</p>
+		 *
+		 * @param instance The instance to check
+		 * @return True if the Injector is managing this instance
 		 */
-		public function hasManagedInstance(instance : Object) : Boolean {
+		public function hasManagedInstance(instance : Object) : Boolean
+		{
 			return _managedObjects[instance];
 		}
 
@@ -449,10 +453,6 @@ package org.swiftsuspenders
 		 */
 		public function destroyInstance(instance : Object) : void
 		{
-			if (!(instance && _managedObjects[instance]))
-			{
-				return;
-			}
 			delete _managedObjects[instance];
 			const type : Class = _reflector.getClass(instance);
 			const typeDescription : TypeDescription = getTypeDescription(type);
@@ -484,9 +484,10 @@ package org.swiftsuspenders
 			var objectsToRemove:Vector.<Object> = new Vector.<Object>();
 			for each (var instance : Object in _managedObjects)
 			{
-				objectsToRemove.push(instance);
+				instance && objectsToRemove.push(instance);
 			}
-			while(objectsToRemove.length){
+			while(objectsToRemove.length)
+			{
 				destroyInstance(objectsToRemove.pop());
 			}
 			_mappings = new Dictionary();

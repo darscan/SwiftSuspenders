@@ -66,7 +66,10 @@ package org.swiftsuspenders.dependencyproviders
 			{
 				return;
 			}
-			_creatingInjector.destroyInstance(_response);
+			if (_creatingInjector.hasManagedInstance(_response))
+			{
+				_creatingInjector.destroyInstance(_response);
+			}
 			_response = null;
 		}
 	}
