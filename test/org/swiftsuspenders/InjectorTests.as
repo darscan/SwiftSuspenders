@@ -100,7 +100,7 @@ package org.swiftsuspenders
 		{
 			var injectee:InterfaceInjectee = new InterfaceInjectee();
 			var value:Clazz = new Clazz();
-			injector.map(Interface).toValue(value);
+			injector.map(Interface).toValue(value, false, false);
 			Assert.assertTrue(injector.satisfies(Interface));
 			injector.unmap(Interface);
 			Assert.assertFalse(injector.satisfies(Interface));
@@ -112,7 +112,7 @@ package org.swiftsuspenders
 			var injectee:ClassInjectee = new ClassInjectee();
 			var injectee2:ClassInjectee = new ClassInjectee();
 			var value:Clazz = new Clazz();
-			injector.map(Clazz).toValue(value);
+			injector.map(Clazz).toValue(value, false, false);
 			injector.injectInto(injectee);
 			Assert.assertStrictlyEquals("Value should have been injected", value, injectee.property );
 			injector.injectInto(injectee2);
@@ -124,7 +124,7 @@ package org.swiftsuspenders
 		{
 			var injectee:InterfaceInjectee = new InterfaceInjectee();
 			var value:Interface = new Clazz();
-			injector.map(Interface).toValue(value);
+			injector.map(Interface).toValue(value, false, false);
 			injector.injectInto(injectee);
 			Assert.assertStrictlyEquals("Value should have been injected", value, injectee.property );
 		}
@@ -134,7 +134,7 @@ package org.swiftsuspenders
 		{
 			var injectee:NamedClassInjectee = new NamedClassInjectee();
 			var value:Clazz = new Clazz();
-			injector.map(Clazz, NamedClassInjectee.NAME).toValue(value);
+			injector.map(Clazz, NamedClassInjectee.NAME).toValue(value, false, false);
 			injector.injectInto(injectee);
 			Assert.assertStrictlyEquals("Named value should have been injected", value, injectee.property );
 		}
@@ -144,7 +144,7 @@ package org.swiftsuspenders
 		{
 			var injectee:NamedInterfaceInjectee = new NamedInterfaceInjectee();
 			var value:Interface = new Clazz();
-			injector.map(Interface, NamedClassInjectee.NAME).toValue(value);
+			injector.map(Interface, NamedClassInjectee.NAME).toValue(value, false, false);
 			injector.injectInto(injectee);
 			Assert.assertStrictlyEquals("Named value should have been injected", value, injectee.property );
 		}
@@ -154,7 +154,7 @@ package org.swiftsuspenders
 		{
 			var injectee:StringInjectee = new StringInjectee();
 			var value:String = '';
-			injector.map(String).toValue(value);
+			injector.map(String).toValue(value, false, false);
 			injector.injectInto(injectee);
 			Assert.assertStrictlyEquals("Value should have been injected", value, injectee.property );
 		}
@@ -164,7 +164,7 @@ package org.swiftsuspenders
 		{
 			var injectee:RecursiveInterfaceInjectee = new RecursiveInterfaceInjectee();
 			var value:InterfaceInjectee = new InterfaceInjectee();
-			injector.map(InterfaceInjectee).toValue(value);
+			injector.map(InterfaceInjectee).toValue(value, false, false);
 			injector.injectInto(injectee);
 			Assert.assertNull('value shouldn\'t have been injected into', value.property);
 		}
@@ -198,7 +198,7 @@ package org.swiftsuspenders
 		{
 			var injectee:ComplexClassInjectee = new ComplexClassInjectee();
 			var value:Clazz = new Clazz();
-			injector.map(Clazz).toValue(value);
+			injector.map(Clazz).toValue(value, false, false);
 			injector.map(ComplexClazz).toType(ComplexClazz);
 			injector.injectInto(injectee);
 			Assert.assertNotNull("Complex Value should have been injected", injectee.property  );
@@ -364,7 +364,7 @@ package org.swiftsuspenders
 		public function two_parameter_constructor_injection_fulfilled():void
 		{
 			injector.map(Clazz);
-			injector.map(String).toValue('stringDependency');
+			injector.map(String).toValue('stringDependency', false, false);
 			var injectee:TwoParametersConstructorInjectee = injector.instantiateUnmapped(TwoParametersConstructorInjectee);
 			Assert.assertNotNull("Instance of Class should have been injected for named Clazz parameter", injectee.getDependency());
 			Assert.assertEquals("The String 'stringDependency' should have been injected for String parameter", injectee.getDependency2(), 'stringDependency');
@@ -382,7 +382,7 @@ package org.swiftsuspenders
 		public function two_named_parameters_constructor_injection_fulfilled():void
 		{
 			injector.map(Clazz, 'namedDependency').toType(Clazz);
-			injector.map(String, 'namedDependency2').toValue('stringDependency');
+			injector.map(String, 'namedDependency2').toValue('stringDependency', false, false);
 			var injectee:TwoNamedParametersConstructorInjectee = injector.instantiateUnmapped(TwoNamedParametersConstructorInjectee);
 			Assert.assertNotNull("Instance of Class should have been injected for named Clazz parameter", injectee.getDependency());
 			Assert.assertEquals("The String 'stringDependency' should have been injected for named String parameter", injectee.getDependency2(), 'stringDependency');
@@ -404,7 +404,7 @@ package org.swiftsuspenders
 		public function named_array_injection_fulfilled():void
 		{
 			var ac : ArrayCollection = new ArrayCollection();
-			injector.map(ArrayCollection, "namedCollection").toValue(ac);
+			injector.map(ArrayCollection, "namedCollection").toValue(ac, false, false);
 			var injectee:NamedArrayCollectionInjectee = injector.instantiateUnmapped(NamedArrayCollectionInjectee);
 			Assert.assertNotNull("Instance 'ac' should have been injected for named ArrayCollection parameter", injectee.ac );
 			Assert.assertEquals("Instance field 'ac' should be identical to local variable 'ac'", ac, injectee.ac);
@@ -415,7 +415,7 @@ package org.swiftsuspenders
 		{
 			var injectee : XMLInjectee = new XMLInjectee();
 			var value : XML = <test/>;
-			injector.map(XML).toValue(value);
+			injector.map(XML).toValue(value, false, false);
 			injector.injectInto(injectee);
 			Assert.assertEquals('injected value should be indentical to mapped value',
 				injectee.property, value);
@@ -455,7 +455,7 @@ package org.swiftsuspenders
 		{
 			var injectee:ClassInjectee = new ClassInjectee();
 			var value:Clazz = new Clazz();
-			injector.map(Clazz).toValue(value);
+			injector.map(Clazz).toValue(value, false, false);
 			injector.injectInto(injectee);
 
 			Assert.assertTrue(injectee.someProperty);
@@ -533,7 +533,7 @@ package org.swiftsuspenders
 		public function getInstance_returns_mapped_value_for_mapped_unnamed_class():void
 		{
 			var clazz : Clazz = new Clazz();
-			injector.map(Clazz).toValue(clazz);
+			injector.map(Clazz).toValue(clazz, false, false);
 			Assert.assertObjectEquals(injector.getInstance(Clazz), clazz);
 		}
 
@@ -541,7 +541,7 @@ package org.swiftsuspenders
 		public function getInstance_returns_mapped_value_for_mapped_named_class():void
 		{
 			var clazz : Clazz = new Clazz();
-			injector.map(Clazz, 'namedClass').toValue(clazz);
+			injector.map(Clazz, 'namedClass').toValue(clazz, false, false);
 			Assert.assertObjectEquals(injector.getInstance(Clazz, 'namedClass'), clazz);
 		}
 
@@ -793,7 +793,7 @@ package org.swiftsuspenders
 		private function injectIntoInstanceAndListenForEvent(eventType : String) : Boolean
 		{
 			const injectee : ClassInjectee = new ClassInjectee();
-			injector.map(Clazz).toValue(new Clazz());
+			injector.map(Clazz).toValue(new Clazz(), false, false);
 			listenToInjectorEvent(eventType);
 			injector.injectInto(injectee);
 			return receivedInjectorEvents.pop() == eventType;
@@ -874,7 +874,9 @@ package org.swiftsuspenders
 		public function injector_executes_injected_PostConstruct_method_vars() : void
 		{
 			var callbackInvoked : Boolean;
-			injector.map(Function).toValue(function() : void {callbackInvoked = true});
+			injector.map(Function).toValue(function () : void {
+				callbackInvoked = true;
+			}, false, false);
 			injector.instantiateUnmapped(PostConstructInjectedVarInjectee);
 			assertThat(callbackInvoked, isTrue());
 		}
@@ -882,7 +884,9 @@ package org.swiftsuspenders
 		[Test]
 		public function injector_executes_injected_PostConstruct_method_vars_in_injectee_scope() : void
 		{
-			injector.map(Function).toValue(function() : void {this.property = new Clazz();});
+			injector.map(Function).toValue(function () : void {
+				this.property = new Clazz();
+			}, false, false);
 			const injectee : PostConstructInjectedVarInjectee =
 				injector.instantiateUnmapped(PostConstructInjectedVarInjectee);
 			assertThat(injectee.property, isA(Clazz));
@@ -1046,7 +1050,7 @@ package org.swiftsuspenders
 		public function instantiateUnmapped_returns_new_instance_even_if_mapped_instance_exists() : void
 		{
 			const mappedValue:Clazz = new Clazz();
-			injector.map(Clazz).toValue(mappedValue);
+			injector.map(Clazz).toValue(mappedValue, false, false);
 			const instance:Clazz = injector.instantiateUnmapped(Clazz);
 			assertThat(instance, not(equalTo(mappedValue)));
 		}
@@ -1054,7 +1058,7 @@ package org.swiftsuspenders
 		[Test]
 		public function hasMapping_returns_true_for_parent_mappings() : void
 		{
-			injector.map(Clazz).toValue(new Clazz());
+			injector.map(Clazz).toValue(new Clazz(), false, false);
 			const childInjector:Injector = injector.createChildInjector();
 			assertThat(childInjector.hasMapping(Clazz), isTrue());
 		}
@@ -1062,7 +1066,7 @@ package org.swiftsuspenders
 		[Test]
 		public function hasMapping_returns_true_for_local_mappings() : void
 		{
-			injector.map(Clazz).toValue(new Clazz());
+			injector.map(Clazz).toValue(new Clazz(), false, false);
 			assertThat(injector.hasMapping(Clazz), isTrue());
 		}
 
@@ -1075,16 +1079,15 @@ package org.swiftsuspenders
 		[Test]
 		public function hasDirectMapping_returns_false_for_parent_mappings() : void
 		{
-			injector.map(Clazz).toValue(new Clazz());
+			injector.map(Clazz).toValue(new Clazz(), false, false);
 			const childInjector:Injector = injector.createChildInjector();
 			assertThat(childInjector.hasDirectMapping(Clazz), isFalse());
-
 		}
 
 		[Test]
 		public function hasDirectMapping_returns_true_for_local_mappings() : void
 		{
-			injector.map(Clazz).toValue(new Clazz());
+			injector.map(Clazz).toValue(new Clazz(), false, false);
 			assertThat(injector.hasDirectMapping(Clazz), isTrue());
 		}
 
@@ -1175,7 +1178,7 @@ package org.swiftsuspenders
 			injector.map(Clazz);
 			injector.map(OneParameterConstructorInjectee);
 			injector.map(TwoParametersConstructorInjectee);
-			injector.map(String).toValue('stringDependency');
+			injector.map(String).toValue('stringDependency', false, false);
 
 			var injectee:TwoParametersConstructorInjecteeWithConstructorInjectedDependencies =
 				injector.instantiateUnmapped(TwoParametersConstructorInjecteeWithConstructorInjectedDependencies);
@@ -1185,11 +1188,45 @@ package org.swiftsuspenders
 
 		[Test]
 		public function toProviderOf_reuses_provider_of_requested_mapping() : void{
-			injector.map(String, 'first').toValue('first');
+			injector.map(String, 'first').toValue('first', false, false);
 			injector.map(String, 'second').toProviderOf(String, 'first');
 			const expected : DependencyProvider = injector.getMapping(String, 'first').getProvider();
 			const actual : DependencyProvider = injector.getMapping(String, 'second').getProvider();
 			assertThat(actual, equalTo(expected));
+		}
+
+		[Test]
+		public function map_value_with_automatic_injected_values():void
+		{
+			var injectee : ClassInjectee = new ClassInjectee();
+			injector.map(Clazz).asSingleton();
+			injector.map(ClassInjectee).toValue(injectee);
+			Assert.assertStrictlyEquals("Value should have been injected", injectee.property, injector.getInstance(Clazz));
+		}
+
+		[Test]
+		public function map_value_without_automatic_injected_values():void
+		{
+			var injectee : ClassInjectee = new ClassInjectee();
+			injector.map(Clazz).asSingleton();
+			injector.map(ClassInjectee).toValue(injectee, false);
+			Assert.assertNull("Value shouldn't been injected", injectee.property);
+		}
+
+		[Test]
+		public function map_value_with_automatic_destroy_on_unmap() : void {
+			var value : Clazz = new Clazz();
+			injector.map(Clazz).toValue(value);
+			injector.unmap(Clazz);
+			Assert.assertTrue("Instance should be destroyed", value.preDestroyCalled);
+		}
+
+		[Test]
+		public function map_value_without_automatic_destroy_on_unmap() : void {
+			var value : Clazz = new Clazz();
+			injector.map(Clazz).toValue(value, false, false);
+			injector.unmap(Clazz);
+			Assert.assertFalse("Instance shouldn't be destroyed", value.preDestroyCalled);
 		}
 
 		//		[Test]
