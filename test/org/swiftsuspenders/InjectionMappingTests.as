@@ -170,7 +170,7 @@ package org.swiftsuspenders
 		[Test]
 		public function valueMappingSupportsNullValue() : void
 		{
-			injector.map(Interface).toValue(null);
+			injector.map(Interface).toValue(null, false, false);
 			injector.getInstance(Interface);
 		}
 	}

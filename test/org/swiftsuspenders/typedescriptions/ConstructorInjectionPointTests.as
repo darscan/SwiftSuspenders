@@ -43,7 +43,7 @@ package  org.swiftsuspenders.typedescriptions
 		public function injectionOfTwoUnnamedPropertiesIntoConstructor():void
 		{
 			injector.map(Clazz).toSingleton(Clazz);
-			injector.map(String).toValue(STRING_REFERENCE);
+			injector.map(String).toValue(STRING_REFERENCE, false, false);
 			
 			var parameters : Array = ["org.swiftsuspenders.support.types::Clazz|","String|"];
 			var injectionPoint:ConstructorInjectionPoint =
@@ -76,7 +76,7 @@ package  org.swiftsuspenders.typedescriptions
 		[Test]
 		public function injectionOfSecondOptionalPropertyIntoTwoOptionalParametersConstructor():void
 		{
-			injector.map(String).toValue(STRING_REFERENCE);
+			injector.map(String).toValue(STRING_REFERENCE, false, false);
 			
 			var parameters : Array = ["org.swiftsuspenders.support.types::Interface|", "String|"];
 			var injectionPoint:ConstructorInjectionPoint =

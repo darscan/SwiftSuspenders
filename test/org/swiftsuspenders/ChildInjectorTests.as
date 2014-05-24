@@ -111,11 +111,11 @@ package org.swiftsuspenders
 		public function parentMappedSingletonGetsInitializedByParentWhenInvokedThroughChildInjector() : void
 		{
 			var parentClazz : Clazz = new Clazz();
-			injector.map(Clazz).toValue(parentClazz);
+			injector.map(Clazz).toValue(parentClazz, false, false);
 			injector.map(ClassInjectee).asSingleton();
 			var childInjector : Injector = injector.createChildInjector();
 			var childClazz : Clazz = new Clazz();
-			childInjector.map(Clazz).toValue(childClazz);
+			childInjector.map(Clazz).toValue(childClazz, false, false);
 
 			var classInjectee : ClassInjectee = childInjector.getInstance(ClassInjectee);
 
@@ -153,7 +153,7 @@ package org.swiftsuspenders
         {
             var childInjector : Injector = injector.createChildInjector();
             var class1 : Clazz = new Clazz();
-            injector.map(Clazz).toValue(class1);  
+            injector.map(Clazz).toValue(class1, false, false);
             
             Assert.assertTrue('Child injector should return true for satisfies that exists on parent injector',
                 childInjector.satisfies(Clazz));
