@@ -13,6 +13,8 @@ package org.swiftsuspenders
 
 	import mx.collections.ArrayCollection;
 
+	import org.flexunit.asserts.fail;
+
 	import org.hamcrest.assertThat;
 	import org.hamcrest.collection.array;
 	import org.hamcrest.core.isA;
@@ -52,6 +54,7 @@ package org.swiftsuspenders
 	import org.swiftsuspenders.support.injectees.PostConstructWithArgInjectee;
 	import org.swiftsuspenders.support.injectees.RecursiveInterfaceInjectee;
 	import org.swiftsuspenders.support.injectees.SetterInjectee;
+	import org.swiftsuspenders.support.injectees.SingletonInjectee;
 	import org.swiftsuspenders.support.injectees.StringInjectee;
 	import org.swiftsuspenders.support.injectees.TwoNamedInterfaceFieldsInjectee;
 	import org.swiftsuspenders.support.injectees.TwoNamedParametersConstructorInjectee;
@@ -69,6 +72,7 @@ package org.swiftsuspenders
 	import org.swiftsuspenders.support.types.ComplexClazz;
 	import org.swiftsuspenders.support.types.Interface;
 	import org.swiftsuspenders.support.types.Interface2;
+	import org.swiftsuspenders.support.types.ObjectToDestroy;
 	import org.swiftsuspenders.typedescriptions.TypeDescription;
 	import org.swiftsuspenders.utils.SsInternal;
 
@@ -873,7 +877,9 @@ package org.swiftsuspenders
 		public function injector_executes_injected_PostConstruct_method_vars() : void
 		{
 			var callbackInvoked : Boolean;
-			injector.map(Function).toValue(function() : void {callbackInvoked = true});
+			injector.map(Function).toValue(function () : void {
+				callbackInvoked = true;
+			});
 			injector.instantiateUnmapped(PostConstructInjectedVarInjectee);
 			assertThat(callbackInvoked, isTrue());
 		}
@@ -881,7 +887,9 @@ package org.swiftsuspenders
 		[Test]
 		public function injector_executes_injected_PostConstruct_method_vars_in_injectee_scope() : void
 		{
-			injector.map(Function).toValue(function() : void {this.property = new Clazz();});
+			injector.map(Function).toValue(function () : void {
+				this.property = new Clazz();
+			});
 			const injectee : PostConstructInjectedVarInjectee =
 				injector.instantiateUnmapped(PostConstructInjectedVarInjectee);
 			assertThat(injectee.property, isA(Clazz));
@@ -898,7 +906,17 @@ package org.swiftsuspenders
 		}
 
 		[Test]
-		public function destroyInstance_invokes_PreDestroy_methods_on_instance() : void
+		public function destroyInstance_invokes_PreDestroy_methods_on_managed_instance() : void
+		{
+			const target : Clazz = new Clazz();
+			assertThat(target, hasPropertyWithValue("preDestroyCalled", false));
+			injector.injectInto(target);
+			injector.destroyInstance(target);
+			assertThat(target, hasPropertyWithValue("preDestroyCalled", true));
+		}
+
+		[Test]
+		public function destroyInstance_invokes_PreDestroy_methods_on_unmanaged_instance() : void
 		{
 			const target : Clazz = new Clazz();
 			assertThat(target, hasPropertyWithValue("preDestroyCalled", false));
@@ -921,6 +939,40 @@ package org.swiftsuspenders
 		}
 
 		[Test]
+		public function teardown_does_not_destroy_what_is_already_destroyed() : void
+		{
+			injector.map(ObjectToDestroy).asSingleton();
+			const singleton : ObjectToDestroy = injector.getInstance(ObjectToDestroy);
+			injector.destroyInstance(singleton);
+			injector.teardown();
+			assertThat(singleton, hasPropertyWithValue("destroyCounter", 1));
+		}
+
+		[Test]
+		public function injectInto_removes_object_from_deleted_objects() : void
+		{
+			injector.map(ObjectToDestroy).asSingleton();
+			const singleton : ObjectToDestroy = injector.getInstance(ObjectToDestroy);
+			injector.destroyInstance(singleton);
+			injector.injectInto(singleton);
+			injector.teardown();
+			assertThat(singleton, hasPropertyWithValue("destroyCounter", 2));
+		}
+
+		[Test]
+		public function teardown_clears_provider_mappings():void
+		{
+			injector.map(Clazz);
+			injector.map(Interface);
+			injector.map(ObjectToDestroy).asSingleton();
+			injector.teardown();
+			for each(var o:Object in injector.SsInternal::providerMappings)
+			{
+				fail("providerMappings should be empty");
+			}
+		}
+
+		[Test]
 		public function teardown_destroys_all_instances_it_injected_into() : void
 		{
 			const target1 : Clazz = new Clazz();
@@ -932,6 +984,20 @@ package org.swiftsuspenders
 			injector.teardown();
 			assertThat(target1, hasPropertyWithValue("preDestroyCalled", true));
 			assertThat(target2, hasPropertyWithValue("preDestroyCalled", true));
+		}
+
+		[Test]
+		public function managed_instance_test() : void
+		{
+			const target1 : Clazz = new Clazz();
+			injector.injectInto(target1);
+			const target2 : Clazz = new Clazz();
+			injector.injectInto(target2);
+			Assert.assertTrue(injector.hasManagedInstance(target1));
+			Assert.assertTrue(injector.hasManagedInstance(target2));
+			injector.teardown();
+			Assert.assertFalse(injector.hasManagedInstance(target1));
+			Assert.assertFalse(injector.hasManagedInstance(target2));
 		}
 
 		[Test]
@@ -1032,7 +1098,6 @@ package org.swiftsuspenders
 			injector.map(Clazz).toValue(new Clazz());
 			const childInjector:Injector = injector.createChildInjector();
 			assertThat(childInjector.hasDirectMapping(Clazz), isFalse());
-
 		}
 
 		[Test]
@@ -1146,6 +1211,40 @@ package org.swiftsuspenders
 			assertThat(actual, equalTo(expected));
 		}
 
+		[Test]
+		public function map_value_with_automatic_injected_values():void
+		{
+			var injectee : ClassInjectee = new ClassInjectee();
+			injector.map(Clazz).asSingleton();
+			injector.map(ClassInjectee).toValue(injectee, true);
+			Assert.assertStrictlyEquals("Value should have been injected", injectee.property, injector.getInstance(Clazz));
+		}
+
+		[Test]
+		public function map_value_without_automatic_injected_values():void
+		{
+			var injectee : ClassInjectee = new ClassInjectee();
+			injector.map(Clazz).asSingleton();
+			injector.map(ClassInjectee).toValue(injectee);
+			Assert.assertNull("Value shouldn't been injected", injectee.property);
+		}
+
+		[Test]
+		public function map_value_with_automatic_destroy_on_unmap() : void {
+			var value : Clazz = new Clazz();
+			injector.map(Clazz).toValue(value, true, true);
+			injector.unmap(Clazz);
+			Assert.assertTrue("Instance should be destroyed", value.preDestroyCalled);
+		}
+
+		[Test]
+		public function map_value_without_automatic_destroy_on_unmap() : void {
+			var value : Clazz = new Clazz();
+			injector.map(Clazz).toValue(value);
+			injector.unmap(Clazz);
+			Assert.assertFalse("Instance shouldn't be destroyed", value.preDestroyCalled);
+		}
+
 		//		[Test]
 		//		public function performInjectionIntoValueWithRecursiveSingletonDependency():void
 		//		{
@@ -1158,5 +1257,25 @@ package org.swiftsuspenders
 		//			Assert.assertEquals("Instance field 'property1' should be identical to Instance field 'namedProperty1'", injectee.property1, injectee.namedProperty1);
 		//			Assert.assertEquals("Instance field 'property1' should be identical to Instance field 'namedProperty2'", injectee.property1, injectee.namedProperty2);
 		//		}
+
+		[Test]
+		public function immediately_initialize_singleton_provider_asSingleton():void
+		{
+			SingletonInjectee.reset();
+			Assert.assertFalse("SingletonInjectee#hasInitialized", SingletonInjectee.hasInitialized);
+
+			injector.map(SingletonInjectee).asSingleton(true);
+			Assert.assertTrue("SingletonInjectee#hasInitialized", SingletonInjectee.hasInitialized);
+		}
+
+		[Test]
+		public function immediately_initialize_singleton_provider_toSingleton():void
+		{
+			SingletonInjectee.reset();
+			Assert.assertFalse("SingletonInjectee#hasInitialized", SingletonInjectee.hasInitialized);
+
+			injector.map(SingletonInjectee).toSingleton(SingletonInjectee, true);
+			Assert.assertTrue("SingletonInjectee#hasInitialized", SingletonInjectee.hasInitialized);
+		}
 	}
 }
