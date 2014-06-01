@@ -19,7 +19,7 @@ package org.swiftsuspenders.mapping
 	import org.swiftsuspenders.errors.InjectorError;
 	import org.swiftsuspenders.utils.SsInternal;
 
-	public class InjectionMapping implements ProviderlessMapping, UnsealedMapping
+	public class InjectionMapping implements IInjectionMapping
 	{
 		//----------------------       Private / Protected Properties       ----------------------//
 		private var _type : Class;
@@ -33,6 +33,27 @@ package org.swiftsuspenders.mapping
 		private var _local : Boolean;
 		private var _sealed : Boolean;
 		private var _sealKey : Object;
+		private var _groupName : String;
+
+		//----------------------            Internal Properties             ----------------------//
+		public function get type() : Class
+		{
+			return _type;
+		}
+
+		public function get name() : String
+		{
+			return _name;
+		}
+
+		public function get mappingId() : String
+		{
+			return _mappingId;
+		}
+
+		public function get groupName() : String {
+			return _groupName;
+		}
 
 		//----------------------               Public Methods               ----------------------//
 		public function InjectionMapping(
@@ -184,7 +205,8 @@ package org.swiftsuspenders.mapping
 		 * @throws org.swiftsuspenders.errors.InjectorMissingMappingError when no mapping was found
 		 * for the specified dependency
 		 */
-		public function toProviderOf(type : Class, name:String = ''):UnsealedMapping{
+		public function toProviderOf(type : Class, name : String = '') : UnsealedMapping
+		{
 			const provider : DependencyProvider = _creatingInjector.getMapping(type, name).getProvider();
 			toProvider(provider);
 			return this;
@@ -277,7 +299,7 @@ package org.swiftsuspenders.mapping
 		 *
 		 * @see #seal()
 		 */
-		public function unseal(key : Object) : InjectionMapping
+		public function unseal(key : Object) : IInjectionMapping
 		{
 			if (!_sealed)
 			{
@@ -335,7 +357,7 @@ package org.swiftsuspenders.mapping
 		 *
 		 * @return The <code>InjectionMapping</code> the method is invoked on
 		 */
-		public function setInjector(injector : Injector) : InjectionMapping
+		public function setInjector(injector : Injector) : IInjectionMapping
 		{
 			_sealed && throwSealedError();
 			if (injector == _overridingInjector)
@@ -348,6 +370,11 @@ package org.swiftsuspenders.mapping
 			return this;
 		}
 
+		public function toGroup(name : String) : UnsealedMapping
+		{
+			_groupName = name;
+			return this;
+		}
 
 		//----------------------         Private / Protected Methods        ----------------------//
 		private function mapProvider(provider : DependencyProvider) : void

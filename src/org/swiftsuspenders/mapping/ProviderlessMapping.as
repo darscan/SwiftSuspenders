@@ -9,7 +9,7 @@ package org.swiftsuspenders.mapping
 {
 	import org.swiftsuspenders.dependencyproviders.DependencyProvider;
 
-	public interface ProviderlessMapping
+	public interface ProviderlessMapping extends UnsealedMapping
 	{
 		/**
 		 * @copy InjectionMapping#toType()
@@ -36,9 +36,5 @@ package org.swiftsuspenders.mapping
 		 */
 		function toProvider(provider : DependencyProvider) : UnsealedMapping;
 
-		/**
-		 * @copy InjectionMapping#seal()
-		 */
-		function seal() : Object;
 	}
 }

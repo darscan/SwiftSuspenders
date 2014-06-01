@@ -12,7 +12,6 @@ package org.swiftsuspenders
 	import flash.events.EventDispatcher;
 	import flash.system.ApplicationDomain;
 	import flash.utils.Dictionary;
-	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
 
 	import org.swiftsuspenders.dependencyproviders.DependencyProvider;
@@ -22,6 +21,7 @@ package org.swiftsuspenders
 	import org.swiftsuspenders.errors.InjectorError;
 	import org.swiftsuspenders.errors.InjectorInterfaceConstructionError;
 	import org.swiftsuspenders.errors.InjectorMissingMappingError;
+	import org.swiftsuspenders.mapping.IInjectionMapping;
 	import org.swiftsuspenders.mapping.InjectionMapping;
 	import org.swiftsuspenders.mapping.MappingEvent;
 	import org.swiftsuspenders.reflection.DescribeTypeJSONReflector;
@@ -236,7 +236,7 @@ package org.swiftsuspenders
 		 * @see #unmap()
 		 * @see org.swiftsuspenders.mapping.InjectionMapping
 		 */
-		public function map(type : Class, name : String = '') : InjectionMapping
+		public function map(type : Class, name : String = '') : IInjectionMapping
 		{
 			const mappingId : String = getQualifiedClassName(type) + '|' + name;
 			return _mappings[mappingId] || createMapping(type, name, mappingId);
@@ -259,20 +259,12 @@ package org.swiftsuspenders
 		{
 			const mappingId : String = getQualifiedClassName(type) + '|' + name;
 			var mapping : InjectionMapping = _mappings[mappingId];
-			if (mapping && mapping.isSealed)
-			{
-				throw new InjectorError('Can\'t unmap a sealed mapping');
-			}
 			if (!mapping)
 			{
 				throw new InjectorError('Error while removing an injector mapping: ' +
 						'No mapping defined for dependency ' + mappingId);
 			}
-			mapping.getProvider().destroy();
-			delete _mappings[mappingId];
-			delete providerMappings[mappingId];
-			hasEventListener(MappingEvent.POST_MAPPING_REMOVE) && dispatchEvent(
-				new MappingEvent(MappingEvent.POST_MAPPING_REMOVE, type, name, null));
+			destroyMapping(mapping);
 		}
 
 		/**
@@ -325,7 +317,7 @@ package org.swiftsuspenders
 		 * @throws org.swiftsuspenders.errors.InjectorMissingMappingError when no mapping was found
 		 * for the specified dependency
 		 */
-		public function getMapping(type : Class, name : String = '') : InjectionMapping
+		public function getMapping(type : Class, name : String = '') : IInjectionMapping
 		{
 			const mappingId : String = getQualifiedClassName(type) + '|' + name;
 			var mapping : InjectionMapping = _mappings[mappingId];
@@ -547,6 +539,7 @@ package org.swiftsuspenders
 		{
 			_applicationDomain = applicationDomain || ApplicationDomain.currentDomain;
 		}
+
 		public function get applicationDomain() : ApplicationDomain
 		{
 			return _applicationDomain;
@@ -607,6 +600,30 @@ package org.swiftsuspenders
 		public function set blockParentFallbackProvider(value : Boolean) : void
 		{
 			_blockParentFallbackProvider = value;
+		}
+
+		/**
+		 * Removes all mapping linked to specified group.
+		 * @param name
+		 *
+		 * @see org.swiftsuspenders.mapping.InjectionMapping#toGroup()
+		 */
+		public function unmapGroup(name : String) : void {
+			var mappingsToDestroy : Vector.<InjectionMapping> = new <InjectionMapping>[];
+			var mapping : InjectionMapping;
+			for (var mappingId : String in _mappings) {
+				mapping = _mappings[mappingId];
+				if (mapping.groupName == name) {
+					if (mapping.isSealed) {
+						throw new InjectorError('Can\'t unmap a sealed mapping');
+					} else {
+						mappingsToDestroy.push(mapping);
+					}
+				}
+			}
+			for each (mapping in mappingsToDestroy) {
+				destroyMapping(mapping);
+			}
 		}
 
 		//----------------------             Internal Methods               ----------------------//
@@ -718,5 +735,19 @@ package org.swiftsuspenders
 			hasEventListener(InjectionEvent.POST_CONSTRUCT) && dispatchEvent(
 					new InjectionEvent(InjectionEvent.POST_CONSTRUCT, target, targetType));
 		}
+
+		private function destroyMapping(mapping:InjectionMapping):void
+		{
+			if (mapping.isSealed)
+			{
+				throw new InjectorError('Can\'t unmap a sealed mapping');
+			}
+			mapping.getProvider().destroy();
+			delete _mappings[mapping.mappingId];
+			delete providerMappings[mapping.mappingId];
+			hasEventListener(MappingEvent.POST_MAPPING_REMOVE) && dispatchEvent(
+				new MappingEvent(MappingEvent.POST_MAPPING_REMOVE, mapping.type, mapping.name, null));
+		}
+
 	}
 }
