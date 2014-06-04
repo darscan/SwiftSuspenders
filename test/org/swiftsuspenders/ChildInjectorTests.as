@@ -9,8 +9,7 @@ package org.swiftsuspenders
 {
 	import flexunit.framework.Assert;
 
-	import org.swiftsuspenders.mapping.InjectionMapping;
-
+	import org.swiftsuspenders.mapping.IInjectionMapping;
 	import org.swiftsuspenders.support.injectees.ClassInjectee;
 	import org.swiftsuspenders.support.injectees.childinjectors.ChildInjectorCreatingProvider;
 	import org.swiftsuspenders.support.injectees.childinjectors.InjectorInjectee;
@@ -26,7 +25,6 @@ package org.swiftsuspenders
 	import org.swiftsuspenders.support.types.Clazz;
 	import org.swiftsuspenders.support.types.Interface;
 	import org.swiftsuspenders.utils.SsInternal;
-	import org.swiftsuspenders.dependencyproviders.ClassProvider;
 
 	use namespace SsInternal;
 
@@ -61,13 +59,13 @@ package org.swiftsuspenders
 		{
 			injector.map(RobotFoot);
 
-			var leftFootMapping : InjectionMapping = injector.map(RobotLeg, 'leftLeg');
+			var leftFootMapping : IInjectionMapping = injector.map(RobotLeg, 'leftLeg');
 			var leftChildInjector : Injector = injector.createChildInjector();
 			leftChildInjector.map(RobotAnkle);
 			leftChildInjector.map(RobotFoot).toType(LeftRobotFoot);
 
 			leftFootMapping.setInjector(leftChildInjector);
-			var rightFootMapping : InjectionMapping = injector.map(RobotLeg, 'rightLeg');
+			var rightFootMapping : IInjectionMapping = injector.map(RobotLeg, 'rightLeg');
 			var rightChildInjector : Injector = injector.createChildInjector();
 			rightChildInjector.map(RobotAnkle);
 			rightChildInjector.map(RobotFoot).toType(RightRobotFoot);
@@ -87,13 +85,13 @@ package org.swiftsuspenders
 			injector.map(RobotFoot);
 			injector.map(RobotToes);
 
-			var leftFootMapping : InjectionMapping = injector.map(RobotLeg, 'leftLeg');
+			var leftFootMapping : IInjectionMapping = injector.map(RobotLeg, 'leftLeg');
 			var leftChildInjector : Injector = injector.createChildInjector();
 			leftChildInjector.map(RobotAnkle);
 			leftChildInjector.map(RobotFoot).toType(LeftRobotFoot);
 			leftFootMapping.setInjector(leftChildInjector);
 
-			var rightFootMapping : InjectionMapping = injector.map(RobotLeg, 'rightLeg');
+			var rightFootMapping : IInjectionMapping = injector.map(RobotLeg, 'rightLeg');
 			var rightChildInjector : Injector = injector.createChildInjector();
 			rightChildInjector.map(RobotAnkle);
 			rightChildInjector.map(RobotFoot).toType(RightRobotFoot);
@@ -130,12 +128,12 @@ package org.swiftsuspenders
 			injector.map(RobotFoot);
 			injector.map(RobotToes);
 
-			var leftFootMapping : InjectionMapping = injector.map(RobotLeg, 'leftLeg');
+			var leftFootMapping : IInjectionMapping = injector.map(RobotLeg, 'leftLeg');
 			var leftChildInjector : Injector = injector.createChildInjector();
 			leftChildInjector.map(RobotFoot).toType(LeftRobotFoot);
 			leftFootMapping.setInjector(leftChildInjector);
 
-			var rightFootMapping : InjectionMapping = injector.map(RobotLeg, 'rightLeg');
+			var rightFootMapping : IInjectionMapping = injector.map(RobotLeg, 'rightLeg');
 			var rightChildInjector : Injector = injector.createChildInjector();
 			rightChildInjector.map(RobotFoot).toType(RightRobotFoot);
 			rightFootMapping.setInjector(rightChildInjector);

@@ -7,6 +7,7 @@
 
 package org.swiftsuspenders.reflection
 {
+	import flash.display.Stage;
 	import flash.utils.Proxy;
 	import flash.utils.getDefinitionByName;
 	import flash.utils.getQualifiedClassName;
@@ -30,7 +31,7 @@ package org.swiftsuspenders.reflection
 			 - int and uint return Number as their constructor
 			 For these, we have to fall back to more verbose ways of getting the constructor.
 			 */
-			if (value is Proxy || value is Number || value is XML || value is XMLList || value is Vector.<*>)
+			if (value is Proxy || value is Number || value is XML || value is XMLList || value is Vector.<*> || value is Stage)
 			{
 				return Class(getDefinitionByName(getQualifiedClassName(value)));
 			}

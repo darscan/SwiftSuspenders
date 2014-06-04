@@ -101,7 +101,6 @@ package org.swiftsuspenders
 		[Test]
 		public function unmap_removes_mapping():void
 		{
-			var injectee:InterfaceInjectee = new InterfaceInjectee();
 			var value:Clazz = new Clazz();
 			injector.map(Interface).toValue(value);
 			Assert.assertTrue(injector.satisfies(Interface));
@@ -1165,7 +1164,7 @@ package org.swiftsuspenders
 		[Test]
 		public function performMappedMappingInjection():void
 		{
-			var mapping : InjectionMapping = injector.map(Interface);
+			var mapping : InjectionMapping = injector.map(Interface) as InjectionMapping;
 			mapping.toSingleton(Clazz);
 			injector.map(Interface2).toProvider(new OtherMappingProvider(mapping));
 			var injectee:MultipleSingletonsOfSameClassInjectee = injector.instantiateUnmapped(MultipleSingletonsOfSameClassInjectee);
@@ -1177,7 +1176,7 @@ package org.swiftsuspenders
 		[Test]
 		public function performMappedNamedMappingInjection():void
 		{
-			var mapping : InjectionMapping = injector.map(Interface);
+			var mapping : InjectionMapping = injector.map(Interface) as InjectionMapping;
 			mapping.toSingleton(Clazz);
 			injector.map(Interface2).toProvider(new OtherMappingProvider(mapping));
 			injector.map(Interface, 'name1').toProvider(new OtherMappingProvider(mapping));
@@ -1276,6 +1275,21 @@ package org.swiftsuspenders
 
 			injector.map(SingletonInjectee).toSingleton(SingletonInjectee, true);
 			Assert.assertTrue("SingletonInjectee#hasInitialized", SingletonInjectee.hasInitialized);
+		}
+
+		[Test]
+		public function unmap_group() : void {
+			var groupName : String = "test";
+			injector.map(Interface, "value").toValue(new Clazz()).toGroup(groupName);
+			injector.map(Interface, "singleton").toSingleton(Clazz).toGroup(groupName);
+			injector.map(Interface).toSingleton(Clazz);
+			Assert.assertTrue(injector.satisfies(Interface, "value"));
+			Assert.assertTrue(injector.satisfies(Interface, "singleton"));
+			Assert.assertTrue(injector.satisfies(Interface));
+			injector.unmapGroup(groupName);
+			Assert.assertFalse("Mapping should be removed", injector.satisfies(Interface, "value"));
+			Assert.assertFalse("Mapping should be removed", injector.satisfies(Interface, "singleton"));
+			Assert.assertTrue("Mapping should exist", injector.satisfies(Interface));
 		}
 	}
 }

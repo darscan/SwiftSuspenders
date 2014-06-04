@@ -13,5 +13,10 @@ package org.swiftsuspenders.mapping
 		 * @copy InjectionMapping#seal()
 		 */
 		function seal() : Object;
+
+		/**
+		 * @copy InjectionMapping#toGroup()
+		 */
+		function toGroup(name : String) : UnsealedMapping;
 	}
 }
